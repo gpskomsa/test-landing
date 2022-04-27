@@ -1,0 +1,4 @@
+{% if result.getError() %}
+<p>Error: {{ result.getError() }}</p>
+{% endif %}
+<p>Data: {{ result.getResult()|json_encode }}</p>

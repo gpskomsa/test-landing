@@ -4,9 +4,9 @@
   }
 </style>
 
-{% if error %}
-    <b>Error: {{ error }}</b>
-{% elseif result|length == 0 %}
+{% if result.getError() %}
+    <b>Error: {{ result.getError() }}</b>
+{% elseif result.getResult()|length == 0 %}
     <b>No activities found</b>
 {% else %}
     <table>
@@ -16,7 +16,7 @@
         <th>Last datetime</th>
       </thead>
       <tbody>
-        {% for activity in result %}
+        {% for activity in result.getResult() %}
         <tr>
         	<td>{{ activity['url'] }}</td>
           <td>{{ activity['cnt'] }}</td>

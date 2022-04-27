@@ -6,23 +6,24 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Annotation\Route;
-use Symfony\Contracts\HttpClient\HttpClientInterface;
+
+use App\JsonRpcService;
 
 class ActivityController extends AbstractController
 {
     /**
      *
-     * @var HttpClientInterface
+     * @var JsonRpcService
      */
-    private $client;
+    private $service;
 
     /**
      *
-     * @param HttpClientInterface $client
+     * @param JsonRpcService $service
      */
-    public function __construct(HttpClientInterface $client)
+    public function __construct(JsonRpcService $service)
     {
-        $this->client = $client;
+        $this->service = $service;
     }
 
     /**
@@ -30,74 +31,30 @@ class ActivityController extends AbstractController
      */
     public function putActivity(Request $request): Response
     {
-        try {
-            $id = 1;
-            $response = $this->client->request(
-                'POST',
-                'http://localhost:8000/json-rpc',
-                [
-                    'headers' => [
-                        'Accept' => 'application/json',
-                    ],
-                    'json' => [
-                        'jsonrpc' => '2.0',
-                        'method' => 'activity.put',
-                        'params' => [
-                            'url' => $request->getUri(),
-                            'date' => date('Y-m-d H:i:s'),
-                        ],
-                        'id' => $id,
-                    ]
-                ]
-            );
+        $result = $this->service->putActivity($request->getUri());
 
-            if (($response->toArray()['id'] ?? false) !== $id) {
-                throw new \RuntimeException('Invalid id received');
-            }
-
-            $result = 'success';
-        } catch (\Throwable $e) {
-            $result = $e->getMessage();
-        }
-
-        return new Response(
-            '<html><body>' . $result . '</body></html>'
+        return $this->render(
+            'admin/status.html.twig',
+            ['result' => $result]
         );
     }
 
     /**
+     *
      * @Route("/admin/activity/{page}", name="activity.get")
+     *
+     * @param Request $request
+     * @param int $page
+     * @return Response
      */
-    public function getActivity($page = 1): Response
+    public function getActivity(Request $request, $page = 1): Response
     {
-        try {
-            $response = $this->client->request(
-                'POST',
-                'http://localhost:8000/json-rpc',
-                [
-                    'headers' => [
-                        'Accept' => 'application/json',
-                    ],
-                    'json' => [
-                        'jsonrpc' => '2.0',
-                        'method' => 'activity.get',
-                        'params' => ['page' => (integer) $page],
-                        'id' => 1,
-                    ]
-                ]
-            );
-
-            $data = $response->toArray();
-            $result = $data['result'] ?? [];
-            $error = $data['error'] ?? null;
-        } catch (\Throwable $e) {
-            $error = $e->getMessage();
-            $result = [];
-        }
+        $this->service->putActivity($request->getUri());
+        $result = $this->service->getActivity($page);
 
         return $this->render(
             'admin/activity.html.twig',
-            ['result' => $result, 'error' => $error ?? null, 'page' => $page]
+            ['result' => $result, 'page' => $page]
         );
     }
 }
