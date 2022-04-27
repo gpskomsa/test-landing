@@ -1,6 +1,8 @@
-activity.put:
-    path: /
-    controller: App\Controller\ActivityController::putActivity
 activity.get:
-    path: /admin/activity
+    path: /admin/activity/{page<\d+>?1}
     controller: App\Controller\ActivityController::getActivity
+activity.put:
+    path: /{r}
+    controller: App\Controller\ActivityController::putActivity
+    requirements:
+      r: ".*"

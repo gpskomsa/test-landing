@@ -31,7 +31,8 @@ class ActivityController extends AbstractController
     public function putActivity(Request $request): Response
     {
         try {
-            $this->client->request(
+            $id = 1;
+            $response = $this->client->request(
                 'POST',
                 'http://localhost:8000/json-rpc',
                 [
@@ -45,10 +46,14 @@ class ActivityController extends AbstractController
                             'url' => $request->getUri(),
                             'date' => date('Y-m-d H:i:s'),
                         ],
-                        'id' => 1,
+                        'id' => $id,
                     ]
                 ]
             );
+
+            if (($response->toArray()['id'] ?? false) !== $id) {
+                throw new \RuntimeException('Invalid id received');
+            }
 
             $result = 'success';
         } catch (\Throwable $e) {
@@ -76,18 +81,23 @@ class ActivityController extends AbstractController
                     'json' => [
                         'jsonrpc' => '2.0',
                         'method' => 'activity.get',
-                        'params' => ['page' => $page],
+                        'params' => ['page' => (integer) $page],
                         'id' => 1,
                     ]
                 ]
             );
 
-            $result = $response->toArray()['result'] ?? [];
+            $data = $response->toArray();
+            $result = $data['result'] ?? [];
+            $error = $data['error'] ?? null;
         } catch (\Throwable $e) {
             $error = $e->getMessage();
             $result = [];
         }
 
-        return $this->render('admin/activity.html.twig', ['result' => $result, 'error' => $error ?? null]);
+        return $this->render(
+            'admin/activity.html.twig',
+            ['result' => $result, 'error' => $error ?? null, 'page' => $page]
+        );
     }
 }

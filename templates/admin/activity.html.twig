@@ -26,3 +26,8 @@
       </tbody>
     </table>
 {% endif %}
+
+{% if page > 1 %}
+<a href="{{ path('activity.get', {page: page - 1}) }}">Prev</a>
+{% endif %}
+<a href="{{ path('activity.get', {page: page + 1}) }}">Next</a>
