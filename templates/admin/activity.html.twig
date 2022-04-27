@@ -1,0 +1,28 @@
+<style>
+  td {
+    padding: 15px;
+  }
+</style>
+
+{% if error %}
+    <b>Error: {{ error }}</b>
+{% elseif result|length == 0 %}
+    <b>No activities found</b>
+{% else %}
+    <table>
+      <thead>
+        <th>Url</th>
+        <th>Count</th>
+        <th>Last datetime</th>
+      </thead>
+      <tbody>
+        {% for activity in result %}
+        <tr>
+        	<td>{{ activity['url'] }}</td>
+          <td>{{ activity['cnt'] }}</td>
+          <td>{{ activity['last_datetime'] }}</td>
+        {% endfor %}
+        </tr>
+      </tbody>
+    </table>
+{% endif %}

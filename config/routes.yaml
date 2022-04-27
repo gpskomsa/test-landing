@@ -1,0 +1,6 @@
+activity.put:
+    path: /
+    controller: App\Controller\ActivityController::putActivity
+activity.get:
+    path: /admin/activity
+    controller: App\Controller\ActivityController::getActivity
